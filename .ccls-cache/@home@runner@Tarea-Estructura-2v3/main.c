@@ -32,7 +32,26 @@ void registrar_Jugador(HashMap *mapaJugador){
   }
 }
 
-
+void mostrar_Jugador(HashMap *mapaJugador,char* jugador){
+  int cont=1;
+  Pair* jugadorBuscado= searchMap(mapaJugador,jugador);
+  if(jugadorBuscado != NULL){
+    tipoJugador* datosJugador=(tipoJugador*)jugadorBuscado->value;
+    printf("Nombre jugador: %s\n",jugadorBuscado->key);
+    printf("Puntos de habilidad: %d\n",datosJugador->ptoHab);
+    printf("Cantidad de items: %d\n",datosJugador->cantItems);
+    printf("Item(s): - ");
+      for (char *item = firstList(datosJugador->Items); item != NULL; item = nextList(datosJugador->Items)) { 
+        if(cont!=1)
+          printf("%-11s- ", " ");
+        printf("%s\n",item);
+        cont++;
+      }
+    printf("————————————————————————————————————————\n\n");
+  } else{
+    printf("El jugador no existe\n");
+  }
+}
 
 
 
@@ -118,7 +137,9 @@ int main() {
     case 1:
       registrar_Jugador(mapaJugadores);
       break;
-    case 2:
+    case 2:printf("Escriba el nombre del Jugador a buscar\n");
+      scanf("%m[^\n]",&jugadorAbuscar);
+      mostrar_Jugador(mapaJugadores, jugadorAbuscar);
       break;
     case 3:
       break;
