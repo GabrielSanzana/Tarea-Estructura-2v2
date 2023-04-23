@@ -53,6 +53,33 @@ void mostrar_Jugador(HashMap *mapaJugador,char* jugador){
   }
 }
 
+void Agregar_item(HashMap *mapaJugador)
+{
+  char *nombreJugador, *item;
+  tipoJugador *datoJugador;
+  printf("\nIngrese el nombre del jugador: \n");
+  scanf("%m[^\n]",&nombreJugador);
+  Pair* jugadorBuscado = searchMap(mapaJugador,nombreJugador);
+  if(jugadorBuscado!=NULL)
+  {
+    datoJugador = jugadorBuscado->value;
+    if(datoJugador->cantItems==8)
+    {
+      printf("El jugador no puede llevar mas items.\n\n");
+      return;
+    }
+    if(datoJugador->cantItems<=7)
+    {
+      printf("Ingrese el nombre del item:\n");
+      scanf("%m[^\n]", &item);
+      pushBack(datoJugador->Items,item);
+      return;
+    }
+  }
+  else
+    printf("\nEl jugador ingresado no existe\n\n");
+}
+
 
 
 void Exportar_datos_de_jugadores_a_archivo_de_texto(char* nombre_archivo, HashMap* mapaJugadores) {
@@ -142,6 +169,7 @@ int main() {
       mostrar_Jugador(mapaJugadores, jugadorAbuscar);
       break;
     case 3:
+      Agregar_item(mapaJugadores);
       break;
     case 4:
       break;
