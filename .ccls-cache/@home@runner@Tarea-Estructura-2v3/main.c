@@ -14,6 +14,7 @@ typedef struct {
   
 } tipoJugador;
 
+
 void registrar_Jugador(HashMap *mapaJugador){
   char *items = NULL, *nombre ;
   int ptoHab = 0, CantItems = 0;
@@ -25,6 +26,8 @@ void registrar_Jugador(HashMap *mapaJugador){
   jugador->cantItems = 0;
   insertMap(mapaJugador, nombre, jugador);    
 }
+
+
 
 void Exportar_datos_de_jugadores_a_archivo_de_texto(char* nombre_archivo, HashMap* mapaJugadores) {
     tipoJugador* local = NULL;
@@ -122,14 +125,14 @@ int main() {
       scanf("%m[^\n]",&nombre_csv_exportar);
       getchar();
       printf("\n——————————————————————————————————————————————\n");
-      
+
     if (strstr(nombre_csv_exportar,".txt")==0) 
     {
       printf("El formato del archivo %s es incorrecto\n", nombre_csv_exportar);
       printf("——————————————————————————————————————————————\n\n");
       break;
     }
-      
+
       Exportar_datos_de_jugadores_a_archivo_de_texto(nombre_csv_exportar, mapaJugadores);
       break;
     case 9:

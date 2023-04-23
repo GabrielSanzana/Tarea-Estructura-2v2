@@ -1,0 +1,11 @@
+Nombre,Puntos de habilidad,#items,Item 1,Item 2,Item 3,Item 4,Item 5,Item 6,Item 7,Item 8
+Charles,69,8,Varita de control mental,Arco largo,Casco de respiración,Botas de salto,
+Sara,42,5,Casco de sabiduría,Varita de control mental,Amuleto de curación
+Jessica,90,1,Casco de hierro
+Anthony,92,8,Lanza,Pergamino de tormenta,Piedra de teletransporte,Varita de rayos,
+Bobby,78,6,Piedra de iluminación,Armadura de mithril,Guantes de destreza,
+Angela,49,1,Poción de resistencia
+Leona,79,3,Botas de salto,Armadura de cristal
+Gracie,96,3,Casco de cuero,Hacha de piedra
+Victor,51,5,Armadura de acero,Poción de rapidez,Amuleto de poder
+Theresa,24,7,Lanza,Armadura de huesos,Espada,Guantes de escalada
