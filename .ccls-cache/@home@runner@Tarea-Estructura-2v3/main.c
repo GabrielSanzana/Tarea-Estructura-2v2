@@ -14,7 +14,7 @@ typedef struct {
   
 } tipoJugador;
 
-int main(void) {
-  printf("Hello World\n");
+int main() {
+  
   return 0;
 }
