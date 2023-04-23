@@ -19,13 +19,20 @@ void registrar_Jugador(HashMap *mapaJugador){
   char *items = NULL, *nombre ;
   int ptoHab = 0, CantItems = 0;
   tipoJugador *jugador = malloc(sizeof(tipoJugador));
-  scanf("%m[^,],",&nombre);
+  printf("\nIngrese el nombre del jugador.\n");
+  scanf("%m[^\n]",&nombre);
   jugador->nombre = strdup(nombre);
   jugador->ptoHab = 0;
   jugador->Items = createList();
   jugador->cantItems = 0;
-  insertMap(mapaJugador, nombre, jugador);    
+  if (searchMap(mapaJugador, nombre) == NULL) {
+    insertMap(mapaJugador, nombre, jugador);
+  } else {
+    printf("El jugador ya existe en el mapa.\n");
+  }
 }
+
+
 
 
 
@@ -66,7 +73,7 @@ int main() {
   //se pone 2000 de capacidad para tener el doble de capacidad que la totalidad de jugadores 
   char caracter[100];
 
-  FILE *archivoCsv = fopen("players10.csv", "r"); // abre el archivo CSV
+  FILE *archivoCsv = fopen("player100.csv", "r"); // abre el archivo CSV
   fgets(caracter, 99, archivoCsv);
   int ptoHab = 0, CantItems = 0,opcion = 0;
   char *nombre = NULL, *Items = NULL;
@@ -89,7 +96,7 @@ int main() {
   fclose(archivoCsv);
   while (true) {
 
-    printf("Elije opcion\n");
+    printf("Elija opcion\n");
 
     printf("1.- Crear Perfil jugador/a \n");
     printf("2.- Mostrar perfil jugador/a\n");
@@ -104,10 +111,12 @@ int main() {
     getchar();
     char* nombre_txt_importar;
     char* nombre_txt_exportar;
+    char* jugadorAbuscar;
     
     switch (opcion) {
   
     case 1:
+      registrar_Jugador(mapaJugadores);
       break;
     case 2:
       break;

@@ -19,44 +19,51 @@ void registrar_Jugador(HashMap *mapaJugador){
   char *items = NULL, *nombre ;
   int ptoHab = 0, CantItems = 0;
   tipoJugador *jugador = malloc(sizeof(tipoJugador));
-  scanf("%m[^,],",&nombre);
+  printf("\nIngrese el nombre del jugador.\n");
+  scanf("%m[^\n]",&nombre);
   jugador->nombre = strdup(nombre);
   jugador->ptoHab = 0;
   jugador->Items = createList();
   jugador->cantItems = 0;
-  insertMap(mapaJugador, nombre, jugador);    
+  if (searchMap(mapaJugador, nombre) == NULL) {
+    insertMap(mapaJugador, nombre, jugador);
+  } else {
+    printf("El jugador ya existe en el mapa.\n");
+  }
 }
+
+
 
 
 
 void Exportar_datos_de_jugadores_a_archivo_de_texto(char* nombre_archivo, HashMap* mapaJugadores) {
     tipoJugador* local = NULL;
     FILE* archivo = fopen(nombre_archivo, "w");
-    printf("\n——————————————————————————————————————————————\n");
     fprintf(archivo, "Nombre,Puntos de habilidad,#items,Item 1,Item 2,Item 3,Item 4,Item 5,Item 6,Item 7,Item 8\n");
-
-    Pair* pair = firstMap(mapaJugadores);
-    while (pair != NULL) {
-        local = pair->value;
+    
+    Pair* datoJugador = firstMap(mapaJugadores);
+    while (datoJugador != NULL) {
+        local = datoJugador->value;
+        if(local==NULL)
+          break;
         fprintf(archivo, "%s,%d,%d,", local->nombre, local->ptoHab, local->cantItems);
 
         char* item = firstList(local->Items);
-        while (item != NULL) {
-            fprintf(archivo, "%s", item);
-            if (nextList(local->Items) == NULL) {
-                break;
-            } else {
-                fprintf(archivo, ",");
-            }
-            item = nextList(local->Items);
+        for (int i = 0; i < local->cantItems; i++)
+        {
+          if(i == local->cantItems - 1)
+            fprintf(archivo, "%s", item); 
+          else
+            fprintf(archivo, "%s,", item); 
+          item = nextList(local->Items);
         }
-
+        
         fprintf(archivo, "\n");
-        pair = nextMap(mapaJugadores);
+        datoJugador = nextMap(mapaJugadores);
     }
 
-    printf("Archivo exportado.\n");
-    printf("——————————————————————————————————————————————\n\n");
+    printf("\nArchivo exportado.\n");
+    printf("————————————————————————————————————————————————————————————\n\n");
     fclose(archivo);
 }
 
@@ -66,7 +73,7 @@ int main() {
   //se pone 2000 de capacidad para tener el doble de capacidad que la totalidad de jugadores 
   char caracter[100];
 
-  FILE *archivoCsv = fopen("players10.csv", "r"); // abre el archivo CSV
+  FILE *archivoCsv = fopen("player100.csv", "r"); // abre el archivo CSV
   fgets(caracter, 99, archivoCsv);
   int ptoHab = 0, CantItems = 0,opcion = 0;
   char *nombre = NULL, *Items = NULL;
@@ -83,12 +90,13 @@ int main() {
     pushBack(jugador->Items, strdup(item));
     item = strtok(NULL, ",");
    }
+    
    insertMap(mapaJugadores, nombre, jugador);
   }
   fclose(archivoCsv);
   while (true) {
 
-    printf("Elije opcion\n");
+    printf("Elija opcion\n");
 
     printf("1.- Crear Perfil jugador/a \n");
     printf("2.- Mostrar perfil jugador/a\n");
@@ -101,12 +109,14 @@ int main() {
     printf("9.- Cargar datos de jugadores desde un archivo de texto\n");
     scanf("%d", &opcion);
     getchar();
-    char* nombre_csv_importar;
-    char* nombre_csv_exportar;
+    char* nombre_txt_importar;
+    char* nombre_txt_exportar;
+    char* jugadorAbuscar;
     
     switch (opcion) {
   
     case 1:
+      registrar_Jugador(mapaJugadores);
       break;
     case 2:
       break;
@@ -121,19 +131,19 @@ int main() {
     case 7:
       break;
     case 8:
-      printf("\nIngrese el nombre del archivo, introduzca el formato (.txt)\n");
-      scanf("%m[^\n]",&nombre_csv_exportar);
+      printf("\n————————————————————————————————————————————————————————————\n");
+      printf("Ingrese el nombre del archivo, introduzca el formato (.txt)\n");
+      scanf("%m[^\n]",&nombre_txt_exportar);
       getchar();
-      printf("\n——————————————————————————————————————————————\n");
 
-    if (strstr(nombre_csv_exportar,".txt")==0) 
+    if (strstr(nombre_txt_exportar,".txt")==0) 
     {
-      printf("El formato del archivo %s es incorrecto\n", nombre_csv_exportar);
-      printf("——————————————————————————————————————————————\n\n");
+      printf("El formato del archivo %s es incorrecto\n", nombre_txt_exportar);
+      printf("————————————————————————————————————————————————————————————\n\n");
       break;
     }
 
-      Exportar_datos_de_jugadores_a_archivo_de_texto(nombre_csv_exportar, mapaJugadores);
+      Exportar_datos_de_jugadores_a_archivo_de_texto(nombre_txt_exportar, mapaJugadores);
       break;
     case 9:
       break;
