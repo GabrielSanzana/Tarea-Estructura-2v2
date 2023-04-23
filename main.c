@@ -38,8 +38,49 @@ int main() {
    }
    insertMap(mapaJugadores, nombre, jugador);
   }
-
-  
   fclose(archivoCsv);
+  while (true) {
+
+    printf("Elije opcion\n");
+
+    printf("1.- Crear Perfil jugador/a \n");
+    printf("2.- Mostrar perfil jugador/a\n");
+    printf("3.- Agregar item a jugador/a\n");
+    printf("4.- Eliminar item a jugador/a\n");
+    printf("5.- Agregar puntos de habilidad a jugador/a\n");
+    printf("6.- Mostrar jugador@s con item específico\n");
+    printf("7.- Deshacer última acción de jugador/a\n");
+    printf("8.- Exportar datos de jugadores a archivo de texto\n");
+    printf("9.- Cargar datos de jugadores desde un archivo de texto\n");
+    scanf("%d", &opcion);
+    getchar();
+    char* nombre_csv_importar;
+    char* nombre_csv_exportar;
+    
+    switch (opcion) {
+  
+    case 1:
+      break;
+    case 2:
+      break;
+    case 3:
+      break;
+    case 4:
+      break;
+    case 5:
+      break;
+    case 6:  
+      break;
+    case 7:
+      break;
+    case 8:
+      break;
+    case 9:
+      break;
+    default:
+      return 0;
+    }
+  }
+  
   return 0;
 }
