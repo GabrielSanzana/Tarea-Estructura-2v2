@@ -23,5 +23,13 @@ int main() {
   int ptoHab, CantItems,opcion = 0;
   char *nombre, *Items;
   
+  while (fscanf(archivoCsv, "%m[^,],%d,%d,%m[^\n]\n", &nombre, &ptoHab, &CantItems,&Items) != EOF) {
+   tipoJugador *jugador = malloc(sizeof(tipoJugador));
+   jugador->nombre = nombre;
+   jugador->ptoHab = ptoHab;
+   jugador->cantItems = CantItems;
+   jugador->Items = createList();
+  }
+  fclose(archivoCsv);
   return 0;
 }
