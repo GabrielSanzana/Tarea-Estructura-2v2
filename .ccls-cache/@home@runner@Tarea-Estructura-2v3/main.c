@@ -41,7 +41,7 @@ void Exportar_datos_de_jugadores_a_archivo_de_texto(char* nombre_archivo, HashMa
         while (item != NULL) {
             fprintf(archivo, "%s", item);
             if (nextList(local->Items) == NULL) {
-                break;- 
+                break;
             } else {
                 fprintf(archivo, ",");
             }
