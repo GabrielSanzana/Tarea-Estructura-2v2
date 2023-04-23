@@ -29,7 +29,17 @@ int main() {
    jugador->ptoHab = ptoHab;
    jugador->cantItems = CantItems;
    jugador->Items = createList();
+
+   char *item = strtok(Items, ",");
+   while(item != NULL)
+   {
+    pushBack(jugador->Items, strdup(item));
+    item = strtok(NULL, ",");
+   }
+   insertMap(mapaJugadores, nombre, jugador);
   }
+
+  
   fclose(archivoCsv);
   return 0;
 }
