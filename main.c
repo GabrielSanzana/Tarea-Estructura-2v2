@@ -18,7 +18,7 @@ void registrar_Jugador(HashMap *mapaJugador){
   char *items = NULL, *nombre ;
   int ptoHab = 0, CantItems = 0;
   tipoJugador *jugador = malloc(sizeof(tipoJugador));
-  scanf("%m[^,],%d,%d,%m[^\n]\n", &nombre, &ptoHab, &CantItems,&Items);
+  scanf("%m[^,],",&nombre);
   jugador->nombre = strdup(nombre);
   jugador->ptoHab = 0;
   jugador->Items = createList();
