@@ -14,22 +14,54 @@ typedef struct {
   
 } tipoJugador;
 
+void Exportar_datos_de_jugadores_a_archivo_de_texto(char* nombre_archivo, HashMap* mapaJugadores) {
+    tipoJugador* local = NULL;
+    FILE* archivo = fopen(nombre_archivo, "w");
+    printf("\n——————————————————————————————————————————————\n");
+    fprintf(archivo, "Nombre,Puntos de habilidad,#items,Item 1,Item 2,Item 3,Item 4,Item 5,Item 6,Item 7,Item 8\n");
+
+    Pair* pair = firstMap(mapaJugadores);
+    while (pair != NULL) {
+        local = pair->value;
+        fprintf(archivo, "%s,%d,%d,", local->nombre, local->ptoHab, local->cantItems);
+
+        char* item = firstList(local->Items);
+        while (item != NULL) {
+            fprintf(archivo, "%s", item);
+            if (nextList(local->Items) == NULL) {
+                break;
+            } else {
+                fprintf(archivo, ",");
+            }
+            item = nextList(local->Items);
+        }
+
+        fprintf(archivo, "\n");
+        pair = nextMap(mapaJugadores);
+    }
+
+    printf("Archivo exportado.\n");
+    printf("——————————————————————————————————————————————\n\n");
+    fclose(archivo);
+}
+
+
 int main() {
    HashMap *mapaJugadores = createMap((long)2000);
   //se pone 2000 de capacidad para tener el doble de capacidad que la totalidad de jugadores 
   char caracter[100];
-  FILE *archivoCsv = fopen("players100.csv", "r"); // abre el archivo CSV
+
+  FILE *archivoCsv = fopen("players10.csv", "r"); // abre el archivo CSV
   fgets(caracter, 99, archivoCsv);
-  int ptoHab, CantItems,opcion = 0;
-  char *nombre, *Items;
+  int ptoHab = 0, CantItems = 0,opcion = 0;
+  char *nombre = NULL, *Items = NULL;
   
   while (fscanf(archivoCsv, "%m[^,],%d,%d,%m[^\n]\n", &nombre, &ptoHab, &CantItems,&Items) != EOF) {
    tipoJugador *jugador = malloc(sizeof(tipoJugador));
-   jugador->nombre = nombre;
+   jugador->nombre = strdup(nombre);
    jugador->ptoHab = ptoHab;
    jugador->cantItems = CantItems;
    jugador->Items = createList();
-
    char *item = strtok(Items, ",");
    while(item != NULL)
    {
@@ -74,6 +106,19 @@ int main() {
     case 7:
       break;
     case 8:
+      printf("\nIngrese el nombre del archivo, introduzca el formato (.txt)\n");
+      scanf("%m[^\n]",&nombre_csv_exportar);
+      getchar();
+      printf("\n——————————————————————————————————————————————\n");
+      /*
+    if (strstr(nombre_csv_exportar,".txt")==0) 
+    {
+      printf("El formato del archivo %s es incorrecto\n", nombre_csv_exportar);
+      printf("——————————————————————————————————————————————\n\n");
+      break;
+    }
+      */
+      Exportar_datos_de_jugadores_a_archivo_de_texto(nombre_csv_exportar, mapaJugadores);
       break;
     case 9:
       break;
