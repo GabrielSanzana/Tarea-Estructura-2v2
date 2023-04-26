@@ -6,12 +6,20 @@
 #include "stack.h"
 #include "list.h"
 
+
+typedef struct{
+  int accion;
+  char *datoEliminado;
+  int puntosHabSumados;
+} tipoAccion;
+
+
 typedef struct {
   char *nombre;  
   int ptoHab;
   int cantItems;
-  List *Items;
-  
+  //crear tabla hash de items y que los valores sean punteros a jugador
+  Stack *acciones; //(se hace pila del tipo de dato tipoAccion, asi se deshace la ultima accion de forma eficiente)
 } tipoJugador;
 
 
@@ -21,15 +29,14 @@ void registrar_Jugador(HashMap *mapaJugador){
   tipoJugador *jugador = malloc(sizeof(tipoJugador));
   printf("\nIngrese el nombre del jugador.\n");
   scanf("%m[^\n]",&nombre);
-  jugador->nombre = strdup(nombre);
-  jugador->ptoHab = 0;
-  jugador->Items = createList();
-  jugador->cantItems = 0;
   if (searchMap(mapaJugador, nombre) == NULL) {
+    jugador->nombre = strdup(nombre);
+    jugador->ptoHab = 0;
+    jugador->cantItems = 0;
     insertMap(mapaJugador, nombre, jugador);
-  } else {
+  } else 
     printf("El jugador ya existe en el mapa.\n");
-  }
+  return;
 }
 
 void mostrar_Jugador(HashMap *mapaJugador,char* jugador){
@@ -58,7 +65,7 @@ void Agregar_item(HashMap *mapaJugador)
   char *nombreJugador, *item;
   tipoJugador *datoJugador;
   printf("\nIngrese el nombre del jugador: \n");
-  scanf("%m[^\n]",&nombreJugador);
+  scanf("%ms[^\n]",&nombreJugador);
   Pair* jugadorBuscado = searchMap(mapaJugador,nombreJugador);
   if(jugadorBuscado!=NULL)
   {
@@ -71,7 +78,8 @@ void Agregar_item(HashMap *mapaJugador)
     if(datoJugador->cantItems<=7)
     {
       printf("Ingrese el nombre del item:\n");
-      scanf("%m[^\n]", &item);
+      scanf("%ms[^\n]", &item);
+      datoJugador->cantItems++;
       pushBack(datoJugador->Items,item);
       return;
     }
@@ -79,8 +87,6 @@ void Agregar_item(HashMap *mapaJugador)
   else
     printf("\nEl jugador ingresado no existe\n\n");
 }
-
-
 
 void Exportar_datos_de_jugadores_a_archivo_de_texto(char* nombre_archivo, HashMap* mapaJugadores) {
     tipoJugador* local = NULL;
@@ -113,33 +119,40 @@ void Exportar_datos_de_jugadores_a_archivo_de_texto(char* nombre_archivo, HashMa
     fclose(archivo);
 }
 
-
 int main() {
    HashMap *mapaJugadores = createMap((long)2000);
   //se pone 2000 de capacidad para tener el doble de capacidad que la totalidad de jugadores 
   char caracter[100];
-
-  FILE *archivoCsv = fopen("player100.csv", "r"); // abre el archivo CSV
+  HashMap *mapaItems = createMap((long) 100);
+  FILE *archivoCsv = fopen("players3.csv", "r"); // abre el archivo CSV
   fgets(caracter, 99, archivoCsv);
   int ptoHab = 0, CantItems = 0,opcion = 0;
   char *nombre = NULL, *Items = NULL;
   
-  while (fscanf(archivoCsv, "%m[^,],%d,%d,%m[^\n]\n", &nombre, &ptoHab, &CantItems,&Items) != EOF) {
+  while (fscanf(archivoCsv, "%m[^,],%d,%d,%m[^\n]\n", &nombre, &ptoHab, &CantItems, &Items) != EOF) {
+   getc(archivoCsv);
    tipoJugador *jugador = malloc(sizeof(tipoJugador));
    jugador->nombre = strdup(nombre);
    jugador->ptoHab = ptoHab;
    jugador->cantItems = CantItems;
-   jugador->Items = createList();
-   char *item = strtok(Items, ",");
-   while(item != NULL)
-   {
-    pushBack(jugador->Items, strdup(item));
-    item = strtok(NULL, ",");
-   }
-    
    insertMap(mapaJugadores, nombre, jugador);
-  }
+   char *item = strtok(Items, ",");
+   while (item != NULL) {
+      Pair *value = searchMap(mapaItems, item);
+      puts(item);
+      if (value == NULL) {
+         List *jugadoresConItem = createList();
+         insertMap(mapaItems, strdup(item), jugadoresConItem);
+         value = searchMap(mapaItems, item);
+      }
+     else puts("ESTA REPETIDO");
+      pushBack(value->value, strdup(nombre));
+      item = strtok(NULL, ",");
+   }
+}
+  puts("KK");
   fclose(archivoCsv);
+  
   while (true) {
 
     printf("Elija opcion\n");
@@ -159,7 +172,7 @@ int main() {
     char* nombre_txt_exportar;
     char* jugadorAbuscar;
     
-    switch (opcion) {
+   switch (opcion) {
   
     case 1:
       registrar_Jugador(mapaJugadores);
@@ -200,6 +213,5 @@ int main() {
       return 0;
     }
   }
-  
   return 0;
 }

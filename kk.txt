@@ -1,0 +1,49 @@
+typedef struct {
+  char *nombre;
+  int ptoHab;
+  int cantItems;
+} tipoJugador;
+
+typedef struct {
+  char *nombre;
+  HashMap *jugadores; // Mapa de jugadores que tienen este item
+} tipoItem;
+
+int main() {
+   HashMap *mapaJugadores = createMap((long)2000);
+  //se pone 2000 de capacidad para tener el doble de capacidad que la totalidad de jugadores 
+  char caracter[100];
+  HashMap *mapaItems = createMap((long) 100);
+  HashMap *mapaItemsJugadores = createMap((long) 100); // Nuevo mapa para relacionar items con jugadores
+  FILE *archivoCsv = fopen("player100.csv", "r"); // abre el archivo CSV
+  fgets(caracter, 99, archivoCsv);
+  int ptoHab = 0, CantItems = 0,opcion = 0;
+  char *nombre = NULL, *Items = NULL;
+  
+  while (fscanf(archivoCsv, "%m[^,],%d,%d,%m[^\n]\n", &nombre, &ptoHab, &CantItems,&Items) != EOF) {
+   tipoJugador *jugador = malloc(sizeof(tipoJugador));
+   jugador->nombre = strdup(nombre);
+   jugador->ptoHab = ptoHab;
+   jugador->cantItems = CantItems; 
+   
+   insertMap(mapaJugadores, nombre, jugador);
+   char *item = strtok(Items, ",");
+   while(item != NULL)
+   {
+    // Insertamos el item en el mapa de items si no existe previamente
+    if (!containsKey(mapaItems, item)) {
+      tipoItem *nuevoItem = malloc(sizeof(tipoItem));
+      nuevoItem->nombre = strdup(item);
+      nuevoItem->jugadores = createMap((long) 10); // Creamos un mapa para los jugadores que tienen ese item
+      insertMap(mapaItems, item, nuevoItem);
+    }
+    // Obtenemos el mapa de jugadores que tienen ese item
+    tipoItem *itemActual = getMap(mapaItems, item);
+    // Insertamos el jugador en el mapa de jugadores del item
+    insertMap(itemActual->jugadores, nombre, jugador);
+    
+    item = strtok(NULL, ",");
+   }
+  }
+  fclose(archivoCsv);
+  
