@@ -9,6 +9,10 @@
 
 typedef struct{
   int accion;
+  /* accion = 0  es agregar item
+     accion = 1 es eliminar item
+     accion = 2 es aumentar puntos de habilidad
+  */
   char *datoEliminado;
   int puntosHabSumados;
 } tipoAccion;
@@ -17,11 +21,12 @@ typedef struct{
 typedef struct {
   char *nombre;  
   int ptoHab;
+
   int cantItems;
+  List * Items;
   //crear tabla hash de items y que los valores sean punteros a jugador
   Stack *acciones; //(se hace pila del tipo de dato tipoAccion, asi se deshace la ultima accion de forma eficiente)
 } tipoJugador;
-
 
 void registrar_Jugador(HashMap *mapaJugador){
   char *items = NULL, *nombre ;
@@ -33,6 +38,8 @@ void registrar_Jugador(HashMap *mapaJugador){
     jugador->nombre = strdup(nombre);
     jugador->ptoHab = 0;
     jugador->cantItems = 0;
+    jugador->Items = createList();
+    jugador->acciones = stack_create();
     insertMap(mapaJugador, nombre, jugador);
   } else 
     printf("El jugador ya existe en el mapa.\n");
@@ -50,7 +57,7 @@ void mostrar_Jugador(HashMap *mapaJugador,char* jugador){
     printf("Item(s): - ");
       for (char *item = firstList(datosJugador->Items); item != NULL; item = nextList(datosJugador->Items)) { 
         if(cont!=1)
-          printf("%-11s- ", " ");
+          printf("%-9s- ", " ");
         printf("%s\n",item);
         cont++;
       }
@@ -60,14 +67,16 @@ void mostrar_Jugador(HashMap *mapaJugador,char* jugador){
   }
 }
 
-void Agregar_item(HashMap *mapaJugador)
+void Agregar_item(HashMap *mapaJugador, HashMap *mapaItems)
 {
-  char *nombreJugador, *item;
+  char *nombreJugador=NULL, *item=NULL;
   tipoJugador *datoJugador;
   printf("\nIngrese el nombre del jugador: \n");
   scanf("%ms[^\n]",&nombreJugador);
   Pair* jugadorBuscado = searchMap(mapaJugador,nombreJugador);
-  if(jugadorBuscado!=NULL)
+  getchar();
+  
+  if(jugadorBuscado != NULL)
   {
     datoJugador = jugadorBuscado->value;
     if(datoJugador->cantItems==8)
@@ -78,15 +87,30 @@ void Agregar_item(HashMap *mapaJugador)
     if(datoJugador->cantItems<=7)
     {
       printf("Ingrese el nombre del item:\n");
-      scanf("%ms[^\n]", &item);
+      scanf("%m[^\n]", &item);
+      getchar();
+
+      Pair *value = searchMap(mapaItems, item);
+      if (value == NULL) {
+         List *jugadoresConItem = createList();
+         insertMap(mapaItems, strdup(item), jugadoresConItem);
+         value = searchMap(mapaItems, item);
+      }
+      tipoAccion *accionJugador = malloc(sizeof(tipoAccion));
+      accionJugador->accion = 0;
+      accionJugador->datoEliminado = item;
+      accionJugador->puntosHabSumados = 0;
+      stack_push(datoJugador->acciones, accionJugador );
+      pushBack(datoJugador->Items, item);
+      pushBack(value->value, strdup(nombreJugador));
       datoJugador->cantItems++;
-      pushBack(datoJugador->Items,item);
       return;
     }
-  }
-  else
+   }
+   else
     printf("\nEl jugador ingresado no existe\n\n");
 }
+
 
 void Exportar_datos_de_jugadores_a_archivo_de_texto(char* nombre_archivo, HashMap* mapaJugadores) {
     tipoJugador* local = NULL;
@@ -124,33 +148,34 @@ int main() {
   //se pone 2000 de capacidad para tener el doble de capacidad que la totalidad de jugadores 
   char caracter[100];
   HashMap *mapaItems = createMap((long) 100);
-  FILE *archivoCsv = fopen("players3.csv", "r"); // abre el archivo CSV
+  FILE *archivoCsv = fopen("player100.csv", "r"); // abre el archivo CSV
+
   fgets(caracter, 99, archivoCsv);
   int ptoHab = 0, CantItems = 0,opcion = 0;
   char *nombre = NULL, *Items = NULL;
   
   while (fscanf(archivoCsv, "%m[^,],%d,%d,%m[^\n]\n", &nombre, &ptoHab, &CantItems, &Items) != EOF) {
-   getc(archivoCsv);
    tipoJugador *jugador = malloc(sizeof(tipoJugador));
    jugador->nombre = strdup(nombre);
    jugador->ptoHab = ptoHab;
    jugador->cantItems = CantItems;
-   insertMap(mapaJugadores, nombre, jugador);
+   jugador->Items = createList();
+   jugador->acciones = stack_create();
    char *item = strtok(Items, ",");
    while (item != NULL) {
       Pair *value = searchMap(mapaItems, item);
-      puts(item);
-      if (value == NULL) {
+      if (value == NULL) {   
          List *jugadoresConItem = createList();
          insertMap(mapaItems, strdup(item), jugadoresConItem);
          value = searchMap(mapaItems, item);
       }
-     else puts("ESTA REPETIDO");
+      pushBack(jugador->Items, strdup(item));
       pushBack(value->value, strdup(nombre));
+     
       item = strtok(NULL, ",");
    }
+  insertMap(mapaJugadores, nombre, jugador);
 }
-  puts("KK");
   fclose(archivoCsv);
   
   while (true) {
@@ -182,7 +207,7 @@ int main() {
       mostrar_Jugador(mapaJugadores, jugadorAbuscar);
       break;
     case 3:
-      Agregar_item(mapaJugadores);
+      Agregar_item(mapaJugadores, mapaItems);
       break;
     case 4:
       break;
