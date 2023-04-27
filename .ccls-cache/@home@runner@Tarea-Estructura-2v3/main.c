@@ -111,6 +111,78 @@ void Agregar_item(HashMap *mapaJugador, HashMap *mapaItems)
     printf("\nEl jugador ingresado no existe\n\n");
 }
 
+void Eliminar_item_de_jugador(HashMap *mapaJugador, HashMap *mapaItems)
+{
+  char *nombreJugador=NULL, *item=NULL;
+  tipoJugador *datoJugador;
+  printf("\nIngrese el nombre del jugador: \n");
+  scanf("%ms[^\n]",&nombreJugador);
+  getchar();
+  Pair* jugadorBuscado = searchMap(mapaJugador,nombreJugador);
+  if(jugadorBuscado != NULL)
+  {
+    printf("Ingrese el nombre del item:\n");
+    scanf("%m[^\n]", &item);
+    getchar();
+    datoJugador = jugadorBuscado->value;
+    Pair *value = searchMap(mapaItems, item);
+    if (value == NULL) {
+      puts("El item ingresado no existe");
+      return;
+    }
+    else
+    {
+      for(char * local = firstList(value->value); value != NULL; local = nextList(value->value))
+        {
+          if (strcmp(local, nombreJugador) == 0)
+          {
+            tipoAccion *accionJugador = malloc(sizeof(tipoAccion));
+            accionJugador->accion = 1;
+            accionJugador->datoEliminado = item;
+            accionJugador->puntosHabSumados = 0;
+            stack_push(datoJugador->acciones, accionJugador);
+            for(char *cadenaNombreItem = firstList(datoJugador->Items); cadenaNombreItem != NULL; cadenaNombreItem = nextList(datoJugador->Items))
+            {
+              if(strcmp(cadenaNombreItem,item) == 0)
+              {
+                popCurrent(datoJugador->Items);
+                datoJugador->cantItems--;
+                return;
+              }
+            }
+          }
+        }
+    }
+    
+  }
+  else
+    printf("\nEl jugador ingresado no existe\n\n");
+}
+
+void Agregar_puntos_de_habilidad(HashMap *mapaJugador)
+{
+  char *nombreJugador=NULL;
+  int ptoHab;
+  tipoJugador *datoJugador;
+  printf("\nIngrese el nombre del jugador: \n");
+  scanf("%ms[^\n]",&nombreJugador);
+  getchar();
+  Pair* jugadorBuscado = searchMap(mapaJugador,nombreJugador);
+  if(jugadorBuscado != NULL)
+  {
+    printf("\nIngrese la cantidad de puntos de habilidad: \n");
+    scanf("%d", &ptoHab);
+    datoJugador = jugadorBuscado->value;
+    datoJugador->ptoHab += ptoHab;
+    tipoAccion *accionJugador = malloc(sizeof(tipoAccion));
+    accionJugador->accion = 2;
+    accionJugador->datoEliminado = NULL;
+    accionJugador->puntosHabSumados = ptoHab;
+    stack_push(datoJugador->acciones, accionJugador);
+  }
+  else
+    printf("\nEl jugador ingresado no existe\n\n");
+}
 
 void Exportar_datos_de_jugadores_a_archivo_de_texto(char* nombre_archivo, HashMap* mapaJugadores) {
     tipoJugador* local = NULL;
@@ -210,8 +282,10 @@ int main() {
       Agregar_item(mapaJugadores, mapaItems);
       break;
     case 4:
+      Eliminar_item_de_jugador(mapaJugadores, mapaItems);
       break;
     case 5:
+      Agregar_puntos_de_habilidad(mapaJugadores);
       break;
     case 6:  
       break;
