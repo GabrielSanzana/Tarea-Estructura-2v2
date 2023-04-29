@@ -29,26 +29,19 @@ typedef struct {
 void registrar_Jugador(HashMap *mapaJugador){
   char *items = NULL, *nombre ;
   int ptoHab = 0, CantItems = 0;
-
-  // Creación de un nuevo jugador
   tipoJugador *jugador = malloc(sizeof(tipoJugador));
-
   printf("\nIngrese el nombre del jugador.\n");
   scanf("%m[^\n]",&nombre);
-
-  // Verifica si el jugador ya existe en el mapa
   if (searchMap(mapaJugador, nombre) == NULL) {
-    // Si el jugador no existe, se inicializan sus atributos
     jugador->nombre = strdup(nombre);
     jugador->ptoHab = 0;
     jugador->cantItems = 0;
-    jugador->Items = createList(); // Se crea una nueva lista para los items del jugador
-    jugador->acciones = stack_create(); // Se crea una pila para las acciones del jugador
-    insertMap(mapaJugador, nombre, jugador); // Se inserta al jugador en el mapa
+    jugador->Items = createList();
+    jugador->acciones = stack_create();
+    insertMap(mapaJugador, nombre, jugador);
   } else 
     printf("El jugador ya existe en el mapa.\n");
-
-  return; // Finaliza la función
+  return;
 }
 
 void mostrar_Jugador(HashMap *mapaJugador,char* jugador){
@@ -236,6 +229,25 @@ void Deshacer_última_acción(HashMap *mapaJugador, HashMap *mapaItems){
   
 }
 
+void Mostrar_jugadores_con_item_específico(HashMap *mapaItems)
+{
+  char *nombreItem=NULL;
+  printf("\nIngrese el nombre del item: \n");
+  scanf("%ms[^\n]",&nombreItem);
+  getchar();
+  Pair* jugadoresBuscados = searchMap(mapaItems,nombreItem);
+  if(jugadoresBuscados != NULL)
+  {
+    for(char *jugador = firstList(jugadoresBuscados->value); jugador != NULL; jugador = nextList(jugadoresBuscados->value))
+    {
+      printf("- %s\n",jugador);
+    }
+  }
+  else
+    printf("\nEl item no existe.\n\n");
+  
+}
+
 void Exportar_datos_de_jugadores_a_archivo_de_texto(char* nombre_archivo, HashMap* mapaJugadores) {
     tipoJugador* local = NULL;
     FILE* archivo = fopen(nombre_archivo, "w");
@@ -266,7 +278,6 @@ void Exportar_datos_de_jugadores_a_archivo_de_texto(char* nombre_archivo, HashMa
     printf("————————————————————————————————————————————————————————————\n\n");
     fclose(archivo);
 }
-
 
 int main() {
    HashMap *mapaJugadores = createMap((long)2000);
@@ -341,6 +352,7 @@ int main() {
       Agregar_puntos_de_habilidad(mapaJugadores);
       break;
     case 6:  
+      Mostrar_jugadores_con_item_específico(mapaItems);
       break;
     case 7:
       Deshacer_última_acción(mapaJugadores ,mapaItems);
@@ -361,10 +373,7 @@ int main() {
       Exportar_datos_de_jugadores_a_archivo_de_texto(nombre_txt_exportar, mapaJugadores);
       break;
     case 9:
-      break;
-    default:
-      return 0;
-    }
+     break;
   }
   return 0;
 }
