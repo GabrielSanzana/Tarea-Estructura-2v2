@@ -279,6 +279,48 @@ void Exportar_datos_de_jugadores_a_archivo_de_texto(char* nombre_archivo, HashMa
     fclose(archivo);
 }
 
+void importar_paciente_desde_un_archivo_Txt(char* nombre_archivo, HashMap* mapaJugadores,HashMap* mapaItems){
+  char caracter[100];
+  FILE *archivoTxt = fopen(nombre_archivo, "r");
+  if (archivoTxt == NULL) 
+    {
+      printf("\n——————————————————————————————————————————————————————————————————————————\n");
+      printf("El archivo %s no existe en el directorio actual o esta mal escrito.\n", nombre_archivo);
+      printf("——————————————————————————————————————————————————————————————————————————\n\n");
+      return;
+    }
+  fgets(caracter, 99, archivoTxt);
+  int ptoHab = 0, CantItems = 0;
+  char *nombre = NULL, *Items = NULL;
+  while (fscanf(archivoTxt, "%m[^,],%d,%d,%m[^\n]\n", &nombre, &ptoHab, &CantItems, &Items) != EOF) {
+   tipoJugador *jugador = malloc(sizeof(tipoJugador));
+   jugador->nombre = strdup(nombre);
+   jugador->ptoHab = ptoHab;
+   jugador->cantItems = CantItems;
+   jugador->Items = createList();
+   jugador->acciones = stack_create();
+   char *item = strtok(Items, ",");
+   while (item != NULL) {
+      Pair *value = searchMap(mapaItems, item);
+      if (value == NULL) {   
+         List *jugadoresConItem = createList();
+         insertMap(mapaItems, strdup(item), jugadoresConItem);
+         value = searchMap(mapaItems, item);
+      }
+      pushBack(jugador->Items, strdup(item));
+      pushBack(value->value, strdup(nombre));
+     
+      item = strtok(NULL, ",");
+   }
+  insertMap(mapaJugadores, nombre, jugador);
+  }  
+  printf("\n——————————————————————————————————————————————\n");
+  printf("Archivo importado.\n");
+  printf("——————————————————————————————————————————————\n\n");
+  fclose(archivoTxt);
+}
+
+
 int main() {
    HashMap *mapaJugadores = createMap((long)2000);
   //se pone 2000 de capacidad para tener el doble de capacidad que la totalidad de jugadores 
@@ -373,7 +415,20 @@ int main() {
       Exportar_datos_de_jugadores_a_archivo_de_texto(nombre_txt_exportar, mapaJugadores);
       break;
     case 9:
-     break;
+      printf("\nIngrese el nombre del archivo, introduzca el formato (.txt)\n");
+      scanf("%m[^\n]",&nombre_txt_importar);
+      getchar();
+      if (strstr(nombre_txt_importar,".txt")==0)
+      {
+        printf("El formato del archivo %s es incorrecto\n", nombre_txt_importar);
+        break;
+      }
+      importar_paciente_desde_un_archivo_Txt(nombre_txt_importar, mapaJugadores,mapaItems);
+      
+      break;
+    default:
+      return 0;
+    }
   }
   return 0;
 }
