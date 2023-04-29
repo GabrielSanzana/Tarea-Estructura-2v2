@@ -6,17 +6,15 @@
 #include "stack.h"
 #include "list.h"
 
-
 typedef struct{
   int accion;
-  /* accion = 0  es agregar item
+  /* accion = 0 es agregar item
      accion = 1 es eliminar item
      accion = 2 es aumentar puntos de habilidad
   */
   char *datoEliminado;
   int puntosHabSumados;
 } tipoAccion;
-
 
 typedef struct {
   char *nombre;  
@@ -31,19 +29,26 @@ typedef struct {
 void registrar_Jugador(HashMap *mapaJugador){
   char *items = NULL, *nombre ;
   int ptoHab = 0, CantItems = 0;
+
+  // Creación de un nuevo jugador
   tipoJugador *jugador = malloc(sizeof(tipoJugador));
+
   printf("\nIngrese el nombre del jugador.\n");
   scanf("%m[^\n]",&nombre);
+
+  // Verifica si el jugador ya existe en el mapa
   if (searchMap(mapaJugador, nombre) == NULL) {
+    // Si el jugador no existe, se inicializan sus atributos
     jugador->nombre = strdup(nombre);
     jugador->ptoHab = 0;
     jugador->cantItems = 0;
-    jugador->Items = createList();
-    jugador->acciones = stack_create();
-    insertMap(mapaJugador, nombre, jugador);
+    jugador->Items = createList(); // Se crea una nueva lista para los items del jugador
+    jugador->acciones = stack_create(); // Se crea una pila para las acciones del jugador
+    insertMap(mapaJugador, nombre, jugador); // Se inserta al jugador en el mapa
   } else 
     printf("El jugador ya existe en el mapa.\n");
-  return;
+
+  return; // Finaliza la función
 }
 
 void mostrar_Jugador(HashMap *mapaJugador,char* jugador){
@@ -184,6 +189,53 @@ void Agregar_puntos_de_habilidad(HashMap *mapaJugador)
     printf("\nEl jugador ingresado no existe\n\n");
 }
 
+void Deshacer_última_acción(HashMap *mapaJugador, HashMap *mapaItems){
+  tipoJugador *datoJugador;
+  char *nombreJugador = NULL;
+  
+  printf("Ingrese el nombre del jugador \n");
+  scanf("%ms[^\n]",&nombreJugador);
+  Pair *jugadorBuscado = searchMap(mapaJugador, nombreJugador);
+  if(jugadorBuscado != NULL)
+  {
+    datoJugador = jugadorBuscado->value;
+    if(datoJugador->acciones == NULL){
+      printf("No hay acciones para deshacer. \n");
+      return;
+    }
+    
+    tipoAccion *ultimaAccion = stack_pop(datoJugador->acciones);
+    if(ultimaAccion!=NULL)
+    {
+  
+    if(ultimaAccion->accion == 0){
+      char *nombreItem = ultimaAccion->datoEliminado;
+      Pair *itemBuscado = searchMap(mapaItems, nombreItem);
+      popBack(datoJugador->Items);
+      datoJugador->cantItems--;
+      printf("Se deshizo la accion de agregar el item %s \n", nombreItem);
+      
+    }  else if(ultimaAccion->accion == 1){
+      char *nombreItem = ultimaAccion->datoEliminado;
+      pushBack(datoJugador->Items,nombreItem);
+      datoJugador->cantItems++;
+      printf("Se deshizo la accion de eliminar el item %s \n", nombreItem);
+      
+      } else if (ultimaAccion->accion == 2){
+      int puntosHabRestar = ultimaAccion->puntosHabSumados;
+      datoJugador->ptoHab -= puntosHabRestar;
+      }
+      return;
+    }
+    else
+      printf("\nEl jugador no tiene acciones previas\n\n");
+    return;
+  }
+  else
+    printf("\nEl jugador ingresado no existe\n\n");
+  
+}
+
 void Exportar_datos_de_jugadores_a_archivo_de_texto(char* nombre_archivo, HashMap* mapaJugadores) {
     tipoJugador* local = NULL;
     FILE* archivo = fopen(nombre_archivo, "w");
@@ -215,6 +267,7 @@ void Exportar_datos_de_jugadores_a_archivo_de_texto(char* nombre_archivo, HashMa
     fclose(archivo);
 }
 
+
 int main() {
    HashMap *mapaJugadores = createMap((long)2000);
   //se pone 2000 de capacidad para tener el doble de capacidad que la totalidad de jugadores 
@@ -226,7 +279,7 @@ int main() {
   int ptoHab = 0, CantItems = 0,opcion = 0;
   char *nombre = NULL, *Items = NULL;
   
-  while (fscanf(archivoCsv, "%m[^,],%d,%d,%m[^\n]\n", &nombre, &ptoHab, &CantItems, &Items) != EOF) {
+   while (fscanf(archivoCsv, "%m[^,],%d,%d,%m[^\n]\n", &nombre, &ptoHab, &CantItems, &Items) != EOF) {
    tipoJugador *jugador = malloc(sizeof(tipoJugador));
    jugador->nombre = strdup(nombre);
    jugador->ptoHab = ptoHab;
@@ -290,6 +343,7 @@ int main() {
     case 6:  
       break;
     case 7:
+      Deshacer_última_acción(mapaJugadores ,mapaItems);
       break;
     case 8:
       printf("\n————————————————————————————————————————————————————————————\n");
